@@ -1,144 +1,172 @@
-1. 项目简介
+# arXiv Computer Science Paper Classification
 
-本项目基于 arXiv 计算机领域论文数据，完成论文研究方向自动分类任务。项目通过 arXiv API 获取论文标题、摘要、类别、作者和发布时间等信息，并利用 TF-IDF 方法将论文文本转换为高维稀疏特征。实验比较了 MultinomialNB、LogisticRegression、LinearSVC 和 LogisticRegression_GridSearchCV 等机器学习模型，并使用 Accuracy、Precision macro、Recall macro 和 F1 macro 对模型性能进行评估。
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-本项目最终选择 LogisticRegression_GridSearchCV 作为最优模型，对 cs.AI、cs.LG、cs.CV、cs.CL 和 cs.SE 五类 arXiv 论文进行研究方向分类。
+## 1. Project overview
 
-2. 项目结构
-<img width="491" height="467" alt="image" src="https://github.com/user-attachments/assets/7a5c8e21-0c89-4529-9170-68643e961f96" />
+This project uses computer science papers from arXiv to classify research areas. It retrieves paper titles, abstracts, categories, authors, and publication dates through the arXiv API, then converts the text into high-dimensional sparse features with TF-IDF. The experiments compare MultinomialNB, LogisticRegression, LinearSVC, and LogisticRegression_GridSearchCV, evaluating model performance with Accuracy, macro Precision, macro Recall, and macro F1.
 
-3. 环境配置
+The selected model is LogisticRegression_GridSearchCV. The task classifies arXiv papers into five categories: cs.AI, cs.LG, cs.CV, cs.CL, and cs.SE.
 
-建议使用 Python 3.9 及以上版本运行本项目。
+## 2. Repository structure
 
-方式一：使用 pip 安装依赖
+The repository contains `code/`, `data/`, `figures/`, and `results/`. The three Python scripts are in `code/`; the figures and result artifacts are written to the corresponding directories.
 
+<img width="491" height="467" alt="Project structure" src="https://github.com/user-attachments/assets/7a5c8e21-0c89-4529-9170-68643e961f96" />
+
+## 3. Environment setup
+
+Python 3.9 or later is recommended.
+
+Option 1: install dependencies with pip
+
+```bash
 pip install requests lxml pandas numpy matplotlib scikit-learn
+```
 
-方式二：使用 Anaconda 创建虚拟环境
+Option 2: create a virtual environment with Anaconda
 
+```bash
 conda create -n arxiv_cls python=3.10
 conda activate arxiv_cls
 pip install requests lxml pandas numpy matplotlib scikit-learn
+```
 
-4. 主要依赖库
+## 4. Main dependencies
 
-requests       # 请求 arXiv API
-lxml           # 解析 arXiv 返回的 XML 数据
-pandas         # 数据读取、清洗和表格处理
-numpy          # 数值计算
-matplotlib     # 绘制实验图表
-scikit-learn   # TF-IDF 特征提取、机器学习建模、参数调优与模型评估
+- `requests`: call the arXiv API
+- `lxml`: parse XML responses from arXiv
+- `pandas`: read, clean, and process tabular data
+- `numpy`: numerical computation
+- `matplotlib`: plot experiment figures
+- `scikit-learn`: TF-IDF extraction, model training, parameter tuning, and evaluation
 
-5. 数据准备
+## 5. Data
 
-本项目数据来源于 arXiv 官方 API，主要采集以下五类计算机领域论文：
+The project collects papers in five computer science categories from the official arXiv API:
 
-cs.AI  人工智能
-cs.LG  机器学习
-cs.CV  计算机视觉
-cs.CL  自然语言处理
-cs.SE  软件工程
+| Category | Area |
+| --- | --- |
+| cs.AI | Artificial intelligence |
+| cs.LG | Machine learning |
+| cs.CV | Computer vision |
+| cs.CL | Natural language processing |
+| cs.SE | Software engineering |
 
-由于完整数据文件体积较大，仓库中未直接上传完整 clean_arxiv.csv。用户可以通过运行代码重新采集并生成数据。
+The repository does not include the complete generated datasets. The `data/` directory contains partial sample CSVs with descriptive Chinese filenames. Running the crawler and cleaning scripts generates `data/raw_arxiv.csv` and `data/clean_arxiv.csv`.
 
-运行数据爬取脚本：
+Run the data crawler:
 
-python 01_crawl_arxiv.py
+```bash
+python code/01_crawl_arxiv.py
+```
 
-运行数据清洗脚本：
+Run the data-cleaning script:
 
-python 02_clean_data.py
+```bash
+python code/02_clean_data.py
+```
 
-数据清洗后会生成用于模型训练的数据文件。清洗过程包括去重、缺失值处理、字段整理、标题与摘要拼接、数值辅助特征构造等步骤。
+Cleaning includes deduplication, missing-value handling, field organization, concatenation of titles and abstracts, and construction of auxiliary numeric features.
 
-6. 运行步骤
+## 6. Run the project
 
-第一步：安装依赖
+From the repository root:
 
+Step 1: install dependencies
+
+```bash
 pip install requests lxml pandas numpy matplotlib scikit-learn
+```
 
-第二步：爬取 arXiv 论文数据
+Step 2: collect arXiv paper data
 
-python 01_crawl_arxiv.py
+```bash
+python code/01_crawl_arxiv.py
+```
 
-该脚本会从 arXiv API 获取论文标题、摘要、类别、作者、发布时间等原始信息。
+This script retrieves raw paper metadata, including titles, abstracts, categories, authors, and publication dates, from the arXiv API.
 
-第三步：清洗数据并构造特征
+Step 3: clean the data and construct features
 
-python 02_clean_data.py
+```bash
+python code/02_clean_data.py
+```
 
-该脚本会对原始数据进行清洗，并构造以下字段：
+The script creates these fields:
 
-text              # 标题与摘要拼接文本
-title_length      # 标题长度
-summary_length    # 摘要长度
-author_count      # 作者数量
-category_count    # 论文类别标签数量
-published_year    # 发布年份
-published_month   # 发布月份
+| Field | Description |
+| --- | --- |
+| `text` | Concatenated title and abstract |
+| `title_length` | Title length |
+| `summary_length` | Abstract length |
+| `author_count` | Number of authors |
+| `category_count` | Number of category labels |
+| `published_year` | Publication year |
+| `published_month` | Publication month |
 
-第四步：训练模型并生成实验结果
+Step 4: train models and generate experiment results
 
-python 03_modeling.py
+```bash
+python code/03_modeling.py
+```
 
-该脚本会完成以下任务：
+The script:
 
-1. 读取清洗后的论文数据
-2. 过滤得到五分类实验数据
-3. 使用 TF-IDF 提取文本特征
-4. 训练 MultinomialNB、LogisticRegression、LinearSVC 等模型
-5. 使用 GridSearchCV 对 LogisticRegression 进行参数调优
-6. 输出 Accuracy、Precision macro、Recall macro 和 F1 macro 等指标
-7. 生成模型对比图、混淆矩阵、学习曲线、参数调优热力图和特征消融图
+1. Loads the cleaned paper data.
+2. Selects data for the five-category experiment.
+3. Extracts text features with TF-IDF.
+4. Trains MultinomialNB, LogisticRegression, and LinearSVC.
+5. Tunes LogisticRegression with GridSearchCV.
+6. Reports Accuracy, macro Precision, macro Recall, and macro F1.
+7. Generates model-comparison plots, a confusion matrix, a learning curve, a parameter-tuning heatmap, and a feature-ablation plot.
 
-7. 输出结果
+## 7. Outputs
 
-运行 03_modeling.py 后，将在 figures/ 和 results/ 文件夹中生成结果文件。
+After running `code/03_modeling.py`, outputs are written to `figures/` and `results/`.
 
-figures 文件夹
+Figures:
 
-category_distribution.png       # 五类论文数量分布图
-model_metrics_bar.png           # 不同模型性能对比图
-gridsearch_heatmap.png          # GridSearchCV 参数调优热力图
-gridsearch_c_curve.png          # 正则化参数 C 影响曲线
-learning_curve.png              # 学习曲线
-confusion_matrix.png            # 最优模型混淆矩阵
-feature_ablation_impact.png     # 特征消融分析图
+- `category_distribution.png`: distribution of papers across the five categories
+- `model_metrics_bar.png`: model performance comparison
+- `gridsearch_heatmap.png`: GridSearchCV parameter-tuning heatmap
+- `gridsearch_c_curve.png`: effect of regularization parameter C
+- `learning_curve.png`: learning curve
+- `confusion_matrix.png`: confusion matrix for the selected model
+- `feature_ablation_impact.png`: feature-ablation analysis
 
-results 文件夹
+Results:
 
-classification_report.txt       # 最优模型分类报告
-model_metrics.csv               # 各模型 Accuracy、Precision、Recall、F1 指标
-best_model_params.txt           # GridSearchCV 最优参数
-gridsearch_results.csv          # 网格搜索完整结果
-feature_ablation_results.csv    # 特征消融实验结果
-model_analysis_summary.txt      # 模型综合分析摘要
+- `classification_report.txt`: classification report for the selected model
+- `model_metrics.csv`: Accuracy, Precision, Recall, and F1 metrics for each model
+- `best_model_params.txt`: best GridSearchCV parameters
+- `gridsearch_results.csv`: full grid-search results
+- `feature_ablation_results.csv`: feature-ablation results
+- `model_analysis_summary.txt`: model analysis summary
 
-8. 模型说明
+## 8. Models
 
-本项目主要比较以下模型：
+The project compares:
 
-MultinomialNB：
-多项式朴素贝叶斯模型，适合作为文本分类基线模型。
-LogisticRegression：
-逻辑回归模型，适合处理 TF-IDF 生成的高维稀疏文本特征。
-LinearSVC：
-线性支持向量机模型，适用于高维文本分类任务。
-LogisticRegression_GridSearchCV：
-在 LogisticRegression 基础上进行参数搜索，调优 TF-IDF 特征数量、ngram 范围和正则化参数 C。
+- **MultinomialNB:** a Naive Bayes baseline suitable for text classification.
+- **LogisticRegression:** a model suited to high-dimensional sparse TF-IDF features.
+- **LinearSVC:** a linear support vector classifier for high-dimensional text classification.
+- **LogisticRegression_GridSearchCV:** LogisticRegression tuned by searching the number of TF-IDF features, the n-gram range, and regularization parameter C.
 
-9. 复现实验结果
+## 9. Reproduce the experiments
 
-完整复现实验可按以下顺序执行：
+Run the following commands in order:
 
+```bash
 pip install requests lxml pandas numpy matplotlib scikit-learn
-python 01_crawl_arxiv.py
-python 02_clean_data.py
-python 03_modeling.py
+python code/01_crawl_arxiv.py
+python code/02_clean_data.py
+python code/03_modeling.py
+```
 
-若不重新爬取完整数据，也可直接查看仓库中的 figures/ 和 results/ 文件夹，其中保存了本次实验生成的主要图表和模型结果。
+To avoid collecting the full dataset again, see the existing figures and results in `figures/` and `results/`.
 
-10. 项目说明
+## 10. Project notes
 
-本项目为人工智能课程论文配套代码。项目代码已上传至 GitHub 仓库，便于查看源码、运行步骤和实验结果。实验结果和运行说明均通过本 README 文件进行说明。
+This repository contains code accompanying a paper for an artificial intelligence course. The source code, run instructions, and experiment outputs are provided here.
+
