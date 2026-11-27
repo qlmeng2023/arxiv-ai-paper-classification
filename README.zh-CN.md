@@ -1,6 +1,6 @@
 # arXiv 计算机领域论文分类
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+[简体中文](README.zh-CN.md) | [English](README.md)
 
 1. 项目简介
 
